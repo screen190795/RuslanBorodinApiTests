@@ -11,6 +11,7 @@ public class Specifications {
         RequestSpecification reqSpec = new RequestSpecBuilder()
                 .setBaseUri("https://reqres.in/")
                 .setContentType("application/json")
+
                 .build();
         return reqSpec;
 
@@ -18,9 +19,17 @@ public class Specifications {
 
 public static ResponseSpecification responseSpec(){
         ResponseSpecification resSpec = new ResponseSpecBuilder()
+                .expectStatusCode(200)
                 .build();
         return resSpec;
 }
+
+    public static ResponseSpecification responseFailSpec(){
+        ResponseSpecification resSpec = new ResponseSpecBuilder()
+                .expectStatusCode(400)
+                .build();
+        return resSpec;
+    }
 
     public static void installSpec(RequestSpecification requestSpec){
         RestAssured.requestSpecification=requestSpec;

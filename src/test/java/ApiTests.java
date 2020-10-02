@@ -1,11 +1,15 @@
 
+import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import io.restassured.response.ResponseBody;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
+
 public class ApiTests {
 
 
@@ -41,13 +45,14 @@ public class ApiTests {
         data.put("email","eve.holt@reqres.in");
         data.put("password","pistol");
         Response response = given()
-                .body(data)
-                .when()
-                .post("/api/register")
-                .then()
-                .statusCode(200)
-                .log().all()
-                .extract().response();
+                        .body(data)
+                        .when()
+                        .post("/api/register").
+                        then().
+                        log().all()
+                        .body("$", hasKey("token"))
+                        .body("$", hasKey("id"))
+                        .extract().response();
     }
 
 
@@ -64,10 +69,14 @@ public class ApiTests {
                 .when()
                 .post("/api/register")
                 .then()
-                .statusCode(400)
                 .log().all()
-                .spec(Specifications.responseSpec())
+                .spec(Specifications.responseFailSpec())
+                .body("$", hasKey("error"))
                 .extract().response();
+                ResponseBody body = response.getBody();
+
+                String bodyAsString = body.asString();
+                Assert.assertTrue(bodyAsString.contains("Missing email or username"));
     }
 
 
