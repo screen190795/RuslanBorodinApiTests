@@ -3,6 +3,7 @@ import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
+import io.restassured.specification.ResponseSpecification;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import java.util.*;
@@ -61,6 +62,7 @@ public class ApiTests {
      */
     @Test
     public void userRegisterFailure(){
+       Specifications.installFailureSpec(Specifications.responseFailSpec());
         Map<String,String> data = new HashMap<>();
         data.put("email","sydney@fife");
         Response response = given()
@@ -70,11 +72,9 @@ public class ApiTests {
                 .post("/api/register")
                 .then()
                 .log().all()
-                .spec(Specifications.responseFailSpec())
                 .body("$", hasKey("error"))
                 .extract().response();
                 ResponseBody body = response.getBody();
-
                 String bodyAsString = body.asString();
                 Assert.assertTrue(bodyAsString.contains("Missing email or username"));
     }

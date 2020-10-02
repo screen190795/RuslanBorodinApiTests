@@ -37,6 +37,8 @@ public static ResponseSpecification responseSpec(){
 
     public static void installSpec(ResponseSpecification responseSpec){  RestAssured.responseSpecification=responseSpec; }
 
+    public static void installFailureSpec(ResponseSpecification responseFailSpec){  RestAssured.responseSpecification=responseFailSpec; }
+
 public static void installSpec(RequestSpecification requestSpec, ResponseSpecification responseSpec){
         RestAssured.requestSpecification = requestSpec;
         RestAssured.responseSpecification = responseSpec();
