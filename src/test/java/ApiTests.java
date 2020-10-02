@@ -25,7 +25,6 @@ public class ApiTests {
                 .get("https://reqres.in/api/users?page=2")
                 .then()
                 .log().all()
-                .statusCode(200)
                 .extract().response();
         JsonPath jsonResponse = response.jsonPath();
         List<String> avatarList = jsonResponse.getList("data.avatar");
@@ -91,7 +90,6 @@ public class ApiTests {
                 .get("https://reqres.in/api/unknown")
                 .then()
                 .log().all()
-                .statusCode(200)
                 .extract().response();
         JsonPath jsonResponse = response.jsonPath();
         List<Integer> givenYears= jsonResponse.getList("data.year");
