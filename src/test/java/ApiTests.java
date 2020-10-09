@@ -1,9 +1,7 @@
 
-import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
+import api.data.*;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
-import io.restassured.specification.ResponseSpecification;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import java.util.*;
@@ -20,15 +18,15 @@ public class ApiTests {
     @Test
     public void AvatarsEqual(){
         Specifications.installSpec(Specifications.requestSpec(),Specifications.responseSpec());
-        Response response = given()
+        List<UserData> data = given()
                 .when()
                 .get("https://reqres.in/api/users?page=2")
                 .then()
-                .log().all()
-                .extract().response();
-        JsonPath jsonResponse = response.jsonPath();
-        List<String> avatarList = jsonResponse.getList("api.data.avatar");
-         avatarList = avatarList.stream()
+                .log().body()
+                .extract().body().jsonPath().getList("data", UserData.class);
+
+        List<String> avatarList = data.stream()
+                .map(UserData::getAvatar)
                 .map(x->x.substring(x.lastIndexOf('/')+1))
                 .collect(Collectors.toList());
         Assert.assertTrue(avatarList.stream().distinct().count()<=1);
@@ -41,18 +39,15 @@ public class ApiTests {
     @Test
     public void userRegister(){
         Specifications.installSpec(Specifications.requestSpec(),Specifications.responseSpec());
-        Map<String,String> data = new HashMap<>();
-        data.put("email","eve.holt@reqres.in");
-        data.put("password","pistol");
-        Response response = given()
-                        .body(data)
+        Account account = new Account("eve.holt@reqres.in","pistol");
+        AccountRegistered accountRegistered = given()
+                        .body(account)
                         .when()
                         .post("/api/register").
                         then().
-                        log().all()
-                        .body("$", hasKey("token"))
-                        .body("$", hasKey("id"))
-                        .extract().response();
+                        log().body()
+                        .extract().body().as(AccountRegistered.class);
+        Assert.assertTrue(accountRegistered.getId()!=null && accountRegistered.getToken()!=null);
     }
 
 
@@ -62,15 +57,15 @@ public class ApiTests {
     @Test
     public void userRegisterFailure(){
        Specifications.installFailureSpec(Specifications.responseFailSpec());
-        Map<String,String> data = new HashMap<>();
-        data.put("email","sydney@fife");
+        Account account = new Account();
+        account.setEmail("sydney@fife");
         Response response = given()
-                .body(data)
+                .body(account)
                 .spec(Specifications.requestSpec())
                 .when()
                 .post("/api/register")
                 .then()
-                .log().all()
+                .log().body()
                 .body("$", hasKey("error"))
                 .extract().response();
                 ResponseBody body = response.getBody();
@@ -85,14 +80,16 @@ public class ApiTests {
     @Test
     public void ResourceList(){
         Specifications.installSpec(Specifications.requestSpec(),Specifications.responseSpec());
-        Response response = given()
+
+        List<ResourceData> dataList = given()
                 .when()
                 .get("https://reqres.in/api/unknown")
                 .then()
-                .log().all()
-                .extract().response();
-        JsonPath jsonResponse = response.jsonPath();
-        List<Integer> givenYears= jsonResponse.getList("api.data.year");
+                .log().body()
+                .extract().body().as(Resource.class).getData();
+        List<Integer> givenYears= dataList.stream()
+                .map(ResourceData::getYear)
+                .collect(Collectors.toList());
         List<Integer> sortedYears = new ArrayList<>(givenYears);
         Collections.sort(sortedYears);
         Assert.assertEquals(givenYears,sortedYears);
