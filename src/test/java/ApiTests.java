@@ -27,7 +27,7 @@ public class ApiTests {
                 .log().all()
                 .extract().response();
         JsonPath jsonResponse = response.jsonPath();
-        List<String> avatarList = jsonResponse.getList("data.avatar");
+        List<String> avatarList = jsonResponse.getList("api.data.avatar");
          avatarList = avatarList.stream()
                 .map(x->x.substring(x.lastIndexOf('/')+1))
                 .collect(Collectors.toList());
@@ -92,7 +92,7 @@ public class ApiTests {
                 .log().all()
                 .extract().response();
         JsonPath jsonResponse = response.jsonPath();
-        List<Integer> givenYears= jsonResponse.getList("data.year");
+        List<Integer> givenYears= jsonResponse.getList("api.data.year");
         List<Integer> sortedYears = new ArrayList<>(givenYears);
         Collections.sort(sortedYears);
         Assert.assertEquals(givenYears,sortedYears);
