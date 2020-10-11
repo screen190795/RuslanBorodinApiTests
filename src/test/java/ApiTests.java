@@ -68,9 +68,8 @@ public class ApiTests {
                 .log().body()
                 .body("$", hasKey("error"))
                 .extract().response();
-                ResponseBody body = response.getBody();
-                String bodyAsString = body.asString();
-                Assert.assertTrue(bodyAsString.contains("Missing email or username"));
+                String message = response.getBody().asString();
+                Assert.assertTrue(message.contains("Missing email or username"));
     }
 
 
@@ -80,7 +79,6 @@ public class ApiTests {
     @Test
     public void ResourceList(){
         Specifications.installSpec(Specifications.requestSpec(),Specifications.responseSpec());
-
         List<ResourceData> dataList = given()
                 .when()
                 .get("https://reqres.in/api/unknown")

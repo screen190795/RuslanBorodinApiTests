@@ -10,7 +10,6 @@ public class Ad extends Resource {
         super();
     }
 
-
     public String getCompany() {
         return company;
     }
